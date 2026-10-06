@@ -250,7 +250,8 @@ begin
   perform bb_check_admin(p_token);
   for k, v in select * from jsonb_each_text(p_settings) loop
     if k in ('shop_name','tagline','whatsapp','email','bank_name','account_name','account_number',
-             'branch_code','delivery_fee','delivery_note','collect_note','about') then
+             'branch_code','delivery_fee','delivery_note','collect_note','about',
+             'phone','address','hours','facebook','instagram','tiktok') then
       insert into bb_settings(key, value) values (k, left(coalesce(v,''), 2000))
       on conflict (key) do update set value = excluded.value;
     end if;
@@ -269,6 +270,7 @@ grant execute on function bb_list_books(), bb_get_settings(), bb_place_order(tex
   bb_admin_delete_book(text,bigint), bb_admin_orders(text), bb_admin_set_order_status(text,text,text),
   bb_admin_delete_order(text,text), bb_admin_save_settings(text,jsonb) to anon, authenticated;
 
+-- (contact keys added in migration benedict_books_contact_settings: phone,address,hours,facebook,instagram,tiktok)
 -- ---------- bootstrap ----------
 insert into bb_admins(username, pass_hash)
 values ('benedict', extensions.crypt('ChangeMe123!', extensions.gen_salt('bf')))

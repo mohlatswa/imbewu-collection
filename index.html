@@ -212,6 +212,12 @@ input::placeholder,textarea::placeholder{color:#6f6a5f}
 select option{background:#1a1a1d;color:var(--ink)}
 input[type=search]::-webkit-search-cancel-button{filter:invert(1)}
 footer a{color:#e9c964}
+.cgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px}
+.ccard{display:flex;gap:14px;align-items:center;background:var(--card);border:1px solid rgba(212,175,55,.3);border-radius:14px;padding:16px;text-decoration:none;transition:.15s}
+a.ccard:hover{border-color:#d4af37;box-shadow:0 0 0 1px rgba(212,175,55,.3)}
+.cic{flex:none;width:44px;height:44px;border-radius:12px;display:grid;place-items:center;color:#120e04;background:var(--gold)}
+.cv-val{font-weight:600;white-space:pre-line;overflow-wrap:anywhere}
+.cv-val.pending{color:#6f6a5f;font-weight:500;font-style:italic}
 .cwrap .gencover{padding-top:38px}
 </style>
 </head>
@@ -225,6 +231,7 @@ footer a{color:#e9c964}
     </a>
     <nav class="links">
       <a href="#shop" data-nav="shop" class="hide-sm">Shop</a>
+      <a href="#contact" data-nav="contact" class="hide-sm">Contact</a>
       <a href="#track" data-nav="track">Track order</a>
       <button class="cartbtn" id="cartBtn" aria-label="Open cart">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6h15l-1.5 9h-12z"/><path d="M6 6 5 3H2"/><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/></svg>
@@ -241,6 +248,7 @@ footer a{color:#e9c964}
       <h1 id="heroTitle">Good books, delivered to your door.</h1>
       <p id="heroAbout">An independent bookshop. Browse the shelves, order online and pay by EFT — delivery or collection.</p>
       <a href="#books" class="btn accent" onclick="document.getElementById('catalog').scrollIntoView({behavior:'smooth'});return false">Browse books</a>
+      <a href="#contact" class="btn ghost" style="margin-left:8px;color:#f1d98a;border-color:rgba(212,175,55,.6)">Contact us</a>
       <svg class="deco" width="300" height="300" viewBox="0 0 64 64"><path d="M6 14c9-4 17-3 24 3v38c-7-6-15-7-24-3z" fill="#fff"/><path d="M58 14c-9-4-17-3-24 3v38c7-6 15-7 24-3z" fill="#fff"/></svg>
     </div>
     <div id="catalog">
@@ -305,6 +313,15 @@ footer a{color:#e9c964}
     </div>
   </section>
 
+  <!-- CONTACT -->
+  <section id="v-contact" class="view page hidden">
+    <div style="max-width:860px;margin:0 auto">
+      <h2 style="margin-bottom:6px">Contact us</h2>
+      <p class="note" style="margin:0 0 18px">Questions about a book, an order or a special request? Get in touch.</p>
+      <div class="cgrid" id="contactCards"></div>
+    </div>
+  </section>
+
   <!-- TRACK -->
   <section id="v-track" class="view page hidden">
     <div class="panel" style="max-width:520px;margin:0 auto">
@@ -361,7 +378,12 @@ footer a{color:#e9c964}
           <h3 style="margin-bottom:14px;font-size:1.1rem">Shop details</h3>
           <div class="row2"><label class="f">Shop name<input name="shop_name"></label><label class="f">Tagline (homepage heading)<input name="tagline"></label></div>
           <label class="f">About the shop<textarea name="about"></textarea></label>
-          <div class="row2"><label class="f">WhatsApp number (orders are sent here)<input name="whatsapp" type="tel" placeholder="e.g. 0821234567"></label><label class="f">Contact email<input name="email" type="email"></label></div>
+          <div class="row2"><label class="f">WhatsApp number (orders are sent here)<input name="whatsapp" type="tel" placeholder="e.g. 0821234567"></label><label class="f">Contact email<input name="email" type="email" placeholder="e.g. orders@example.com"></label></div>
+          <h3 style="margin:8px 0 14px;font-size:1.1rem">Contact details (shown on the Contact page)</h3>
+          <div class="row2"><label class="f">Phone number (calls)<input name="phone" type="tel" placeholder="e.g. 011 123 4567"></label><label class="f">Business hours<input name="hours" placeholder="e.g. Mon – Fri 08:00 – 17:00"></label></div>
+          <label class="f">Physical / collection address<textarea name="address" style="min-height:60px" placeholder="Street, suburb, city, postal code"></textarea></label>
+          <div class="row2"><label class="f">Facebook (page link or name)<input name="facebook" placeholder="e.g. facebook.com/benedictbooks"></label><label class="f">Instagram (@handle)<input name="instagram" placeholder="e.g. @benedictbooks"></label></div>
+          <label class="f">TikTok (@handle)<input name="tiktok" placeholder="e.g. @benedictbooks"></label>
           <h3 style="margin:8px 0 14px;font-size:1.1rem">Banking details (shown to customers for EFT)</h3>
           <div class="row2"><label class="f">Bank<input name="bank_name"></label><label class="f">Account holder<input name="account_name"></label></div>
           <div class="row2"><label class="f">Account number<input name="account_number"></label><label class="f">Branch code<input name="branch_code"></label></div>
@@ -383,7 +405,7 @@ footer a{color:#e9c964}
 <footer>
   <div class="wrap">
     <div><b class="serif" style="color:#e9c964" id="fName">Benedict Books</b><br><span id="fContact"></span></div>
-    <div><a href="#track">Track an order</a> · <a href="#admin">Owner login</a></div>
+    <div><a href="#contact">Contact us</a> · <a href="#track">Track an order</a> · <a href="#admin">Owner login</a></div>
   </div>
 </footer>
 
@@ -454,8 +476,40 @@ function applySettings(){
   const fee=Number(s.delivery_fee||0);
   $('#delNote').textContent=(fee?money(fee)+' · ':'Free · ')+(s.delivery_note||'');
   $('#colNote').textContent='Free · '+(s.collect_note||'');
-  const c=[]; if(s.whatsapp) c.push('WhatsApp '+s.whatsapp); if(s.email) c.push(s.email);
-  $('#fContact').textContent=c.join(' · ');
+  const c=[]; if(s.whatsapp) c.push('WhatsApp '+s.whatsapp); if(s.phone) c.push('Tel '+s.phone); if(s.email) c.push(s.email);
+  $('#fContact').textContent=c.join(' · ')||'Contact details coming soon';
+  if(location.hash==='#contact') renderContact();
+}
+
+// ---------- contact ----------
+const ICONS={
+  wa:'<path d="M20 12a8 8 0 0 1-11.9 7L4 20l1-4A8 8 0 1 1 20 12z"/><path d="M9 9.5c.5 2 2.5 4 4.5 4.5l1.2-1.2 2 .8-.4 1.6c-3.6.4-8.5-4.5-8.1-8.1l1.6-.4.8 2z"/>',
+  phone:'<path d="M5 3h4l2 5-2.5 1.5a11 11 0 0 0 6 6L16 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 5a2 2 0 0 1 2-2"/>',
+  mail:'<rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/>',
+  pin:'<path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/>',
+  clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+  fb:'<path d="M14 8h3V4h-3a4 4 0 0 0-4 4v3H7v4h3v6h4v-6h3l1-4h-4V8z"/>',
+  ig:'<rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r=".8"/>',
+  tt:'<path d="M14 3v11a3.5 3.5 0 1 1-3.5-3.5"/><path d="M14 3c.5 3 2.5 5 5.5 5"/>'
+};
+function socialUrl(v,base){v=String(v||'').trim(); if(!v) return ''; if(/^https?:\/\//i.test(v)) return v; if(/\.(com|co\.za)/i.test(v)) return 'https://'+v; return base+v.replace(/^@/,'')}
+function renderContact(){
+  const s=SETTINGS, wa=waNumber(s.whatsapp);
+  const cards=[
+    ['wa','WhatsApp',s.whatsapp,wa?`https://wa.me/${wa}`:''],
+    ['phone','Phone',s.phone,s.phone?`tel:${String(s.phone).replace(/[^\d+]/g,'')}`:''],
+    ['mail','Email',s.email,s.email?`mailto:${s.email}`:''],
+    ['pin','Address',s.address,s.address?`https://maps.google.com/?q=${encodeURIComponent(s.address)}`:''],
+    ['clock','Business hours',s.hours,''],
+    ['fb','Facebook',s.facebook,socialUrl(s.facebook,'https://facebook.com/')],
+    ['ig','Instagram',s.instagram,socialUrl(s.instagram,'https://instagram.com/')],
+    ['tt','TikTok',s.tiktok,socialUrl(s.tiktok,'https://www.tiktok.com/@')]
+  ];
+  $('#contactCards').innerHTML=cards.map(([i,label,val,href])=>{
+    const body=val?`<div class="cv-val">${esc(val)}</div>`:`<div class="cv-val pending">Coming soon</div>`;
+    const inner=`<div class="cic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${ICONS[i]}</svg></div><div style="min-width:0"><div class="note">${label}</div>${body}</div>`;
+    return val&&href?`<a class="ccard" href="${esc(href)}" target="_blank" rel="noopener">${inner}</a>`:`<div class="ccard">${inner}</div>`;
+  }).join('');
 }
 
 // ---------- catalog ----------
@@ -721,12 +775,13 @@ $('#pwForm').addEventListener('submit',async e=>{
 // ---------- routing ----------
 function route(){
   const v=(location.hash.slice(1)||'shop').split('/')[0];
-  const view=['shop','checkout','done','track','admin'].includes(v)?v:'shop';
+  const view=['shop','checkout','done','track','contact','admin'].includes(v)?v:'shop';
   $$('.view').forEach(s=>s.classList.toggle('hidden',s.id!=='v-'+view));
   $$('[data-nav]').forEach(a=>a.classList.toggle('on',a.dataset.nav===view));
   closeLayers(); window.scrollTo(0,0);
   if(view==='checkout') renderCheckout();
   if(view==='done') renderDone();
+  if(view==='contact') renderContact();
   if(view==='admin') showAdmin();
 }
 window.addEventListener('hashchange',route);
