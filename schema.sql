@@ -1,4 +1,4 @@
--- Benedict Books — online bookshop schema (shared Supabase project uwxnbaicwfbygvkiyhcf)
+-- Imbewu Collection — online bookshop schema (shared Supabase project uwxnbaicwfbygvkiyhcf)
 -- RPC-only: anon has no direct table access; everything goes through SECURITY DEFINER functions.
 
 create table if not exists bb_books (
@@ -112,7 +112,7 @@ begin
   end if;
 
   loop
-    v_ref := 'BB-' || (select string_agg(substr(v_alpha, 1 + (get_byte(gen_random_bytes(1),0) % length(v_alpha)), 1), '')
+    v_ref := 'IC-' || (select string_agg(substr(v_alpha, 1 + (get_byte(gen_random_bytes(1),0) % length(v_alpha)), 1), '')
                        from generate_series(1,6));
     exit when not exists (select 1 from bb_orders where ref = v_ref);
   end loop;
@@ -277,7 +277,7 @@ values ('benedict', extensions.crypt('ChangeMe123!', extensions.gen_salt('bf')))
 on conflict (username) do nothing;
 
 insert into bb_settings(key, value) values
-  ('shop_name', 'Benedict Books'),
+  ('shop_name', 'Imbewu Collection'),
   ('tagline', 'Good books, delivered to your door.'),
   ('whatsapp', ''),
   ('email', ''),

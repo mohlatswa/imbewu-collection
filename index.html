@@ -3,10 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Benedict Books</title>
-<meta name="description" content="Benedict Books — an independent online bookshop. Browse, order and pay by EFT, with delivery or collection.">
+<title>Imbewu Collection</title>
+<meta name="description" content="Imbewu Collection — an independent online bookshop. Browse, order and pay by EFT, with delivery or collection.">
 <meta name="theme-color" content="#08080a">
-<meta property="og:title" content="Benedict Books">
+<meta property="og:title" content="Imbewu Collection">
 <meta property="og:description" content="Good books, delivered to your door. Browse and order online.">
 <meta property="og:type" content="website">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
@@ -227,7 +227,7 @@ a.ccard:hover{border-color:#d4af37;box-shadow:0 0 0 1px rgba(212,175,55,.3)}
   <div class="wrap">
     <a class="logo" href="#shop">
       <svg width="30" height="30" viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="14" fill="#0b0b0c" stroke="#d4af37" stroke-width="3"/><path d="M14 18c7-3 13-2 18 2v28c-5-4-11-5-18-2z" fill="#f4e3a8"/><path d="M50 18c-7-3-13-2-18 2v28c5-4 11-5 18-2z" fill="#d4af37"/></svg>
-      <span id="shopName">Benedict Books</span>
+      <span id="shopName">Imbewu Collection</span>
     </a>
     <nav class="links">
       <a href="#shop" data-nav="shop" class="hide-sm">Shop</a>
@@ -328,7 +328,7 @@ a.ccard:hover{border-color:#d4af37;box-shadow:0 0 0 1px rgba(212,175,55,.3)}
       <h2 style="margin-bottom:6px">Track your order</h2>
       <p class="note" style="margin:0 0 16px">Enter your order number and the phone number you ordered with.</p>
       <form id="trForm">
-        <label class="f">Order number<input name="ref" placeholder="BB-XXXXXX" required style="text-transform:uppercase"></label>
+        <label class="f">Order number<input name="ref" placeholder="IC-XXXXXX" required style="text-transform:uppercase"></label>
         <label class="f">Phone number<input name="phone" type="tel" required></label>
         <button class="btn primary" style="width:100%">Check status</button>
       </form>
@@ -382,8 +382,8 @@ a.ccard:hover{border-color:#d4af37;box-shadow:0 0 0 1px rgba(212,175,55,.3)}
           <h3 style="margin:8px 0 14px;font-size:1.1rem">Contact details (shown on the Contact page)</h3>
           <div class="row2"><label class="f">Phone number (calls)<input name="phone" type="tel" placeholder="e.g. 011 123 4567"></label><label class="f">Business hours<input name="hours" placeholder="e.g. Mon – Fri 08:00 – 17:00"></label></div>
           <label class="f">Physical / collection address<textarea name="address" style="min-height:60px" placeholder="Street, suburb, city, postal code"></textarea></label>
-          <div class="row2"><label class="f">Facebook (page link or name)<input name="facebook" placeholder="e.g. facebook.com/benedictbooks"></label><label class="f">Instagram (@handle)<input name="instagram" placeholder="e.g. @benedictbooks"></label></div>
-          <label class="f">TikTok (@handle)<input name="tiktok" placeholder="e.g. @benedictbooks"></label>
+          <div class="row2"><label class="f">Facebook (page link or name)<input name="facebook" placeholder="e.g. facebook.com/imbewucollection"></label><label class="f">Instagram (@handle)<input name="instagram" placeholder="e.g. @imbewucollection"></label></div>
+          <label class="f">TikTok (@handle)<input name="tiktok" placeholder="e.g. @imbewucollection"></label>
           <h3 style="margin:8px 0 14px;font-size:1.1rem">Banking details (shown to customers for EFT)</h3>
           <div class="row2"><label class="f">Bank<input name="bank_name"></label><label class="f">Account holder<input name="account_name"></label></div>
           <div class="row2"><label class="f">Account number<input name="account_number"></label><label class="f">Branch code<input name="branch_code"></label></div>
@@ -404,7 +404,7 @@ a.ccard:hover{border-color:#d4af37;box-shadow:0 0 0 1px rgba(212,175,55,.3)}
 
 <footer>
   <div class="wrap">
-    <div><b class="serif" style="color:#e9c964" id="fName">Benedict Books</b><br><span id="fContact"></span></div>
+    <div><b class="serif" style="color:#e9c964" id="fName">Imbewu Collection</b><br><span id="fContact"></span></div>
     <div><a href="#contact">Contact us</a> · <a href="#track">Track an order</a> · <a href="#admin">Owner login</a></div>
   </div>
 </footer>
@@ -469,7 +469,7 @@ function coverHTML(b){
 
 // ---------- settings ----------
 function applySettings(){
-  const s=SETTINGS, name=s.shop_name||'Benedict Books';
+  const s=SETTINGS, name=s.shop_name||'Imbewu Collection';
   document.title=name; $('#shopName').textContent=name; $('#fName').textContent=name;
   if(s.tagline) $('#heroTitle').textContent=s.tagline;
   if(s.about) $('#heroAbout').textContent=s.about;
@@ -634,7 +634,7 @@ function renderDone(){
     :`<p class="note">We'll contact you on ${esc(o.phone)} with payment details shortly.</p>`;
   const wa=waNumber(s.whatsapp);
   if(wa){
-    const msg=`Hi! I've placed order ${o.ref} on ${s.shop_name||'Benedict Books'}.\n\n`+o.items.map(i=>`${i.qty} × ${i.title} — ${money(i.price*i.qty)}`).join('\n')
+    const msg=`Hi! I've placed order ${o.ref} on ${s.shop_name||'Imbewu Collection'}.\n\n`+o.items.map(i=>`${i.qty} × ${i.title} — ${money(i.price*i.qty)}`).join('\n')
       +`\n\nTotal: ${money(o.total)} (${o.delivery==='delivery'?'delivery':'collection'})\nName: ${o.name}\nPhone: ${o.phone}`+(o.address?`\nAddress: ${o.address}`:'');
     $('#doneWa').href=`https://wa.me/${wa}?text=${encodeURIComponent(msg)}`; $('#doneWa').classList.remove('hidden');
   } else $('#doneWa').classList.add('hidden');
@@ -689,7 +689,7 @@ function renderOrders(){
   const f=$('#ofilter').value;
   const list=ORDERS.filter(o=>!f||(f==='open'?!['completed','cancelled'].includes(o.status):o.status===f));
   $('#olist').innerHTML=list.length?list.map(o=>{
-    const wa=waNumber(o.phone), msg=`Hi ${o.customer_name.split(' ')[0]}, this is ${SETTINGS.shop_name||'Benedict Books'} about your order ${o.ref}. `;
+    const wa=waNumber(o.phone), msg=`Hi ${o.customer_name.split(' ')[0]}, this is ${SETTINGS.shop_name||'Imbewu Collection'} about your order ${o.ref}. `;
     return `<div class="ocard"><div class="h"><div><b class="serif" style="font-size:1.1rem">${esc(o.ref)}</b> <span class="status s-${o.status}">${esc(o.status)}</span></div>
       <b>${money(o.total)}</b></div>
       <div style="margin-top:6px"><b>${esc(o.customer_name)}</b> · <a href="tel:${esc(o.phone)}">${esc(o.phone)}</a>${o.email?' · '+esc(o.email):''}</div>
