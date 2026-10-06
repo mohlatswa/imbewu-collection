@@ -1,0 +1,738 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Benedict Books</title>
+<meta name="description" content="Benedict Books — an independent online bookshop. Browse, order and pay by EFT, with delivery or collection.">
+<meta name="theme-color" content="#08080a">
+<meta property="og:title" content="Benedict Books">
+<meta property="og:description" content="Good books, delivered to your door. Browse and order online.">
+<meta property="og:type" content="website">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon.svg">
+<link rel="manifest" href="manifest.json">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{
+  --paper:#08080a; --card:#121214; --field:#1a1a1d; --ink:#f4efe4; --muted:#a8a193; --line:#2e2b25;
+  --brand:#d4af37; --brand-2:#e9c964; --accent:#d4af37; --accent-l:rgba(212,175,55,.12);
+  --gold:linear-gradient(135deg,#8a6a1f 0%,#e9c964 28%,#fff1b8 50%,#c9a23c 72%,#8a6a1f 100%);
+  --ok:#5cc58a; --warn:#e39a5b; --err:#ff6b61;
+  --r:14px; --shadow:0 1px 2px rgba(0,0,0,.5),0 10px 30px rgba(0,0,0,.45);
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.55 Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+h1,h2,h3,.serif{font-family:Fraunces,Georgia,serif;font-weight:700;letter-spacing:-.01em;line-height:1.2;margin:0}
+a{color:inherit}
+button,input,select,textarea{font:inherit;color:inherit}
+.wrap{max-width:1180px;margin:0 auto;padding:0 16px}
+.hidden{display:none!important}
+
+/* header */
+header.top{position:sticky;top:0;z-index:30;background:rgba(8,8,10,.86);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+header.top .wrap{display:flex;align-items:center;gap:12px;height:64px}
+.logo{display:flex;align-items:center;gap:10px;text-decoration:none;font-family:Fraunces,Georgia,serif;font-weight:700;font-size:1.25rem;color:var(--brand);min-width:0}
+.logo svg{flex:none}
+.logo span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+nav.links{margin-left:auto;display:flex;gap:4px;align-items:center}
+nav.links a{white-space:nowrap;padding:8px 12px;border-radius:999px;text-decoration:none;color:var(--muted);font-weight:500;font-size:.95rem}
+nav.links a:hover,nav.links a.on{color:var(--brand);background:var(--accent-l)}
+.cartbtn{position:relative;display:inline-flex;align-items:center;gap:8px;background:var(--gold);color:#120e04;border:0;border-radius:999px;padding:9px 16px;font-weight:600;cursor:pointer}
+.cartbtn .n{background:#0b0b0c;color:#e9c964;border-radius:999px;font-size:.75rem;min-width:20px;height:20px;display:inline-grid;place-items:center;padding:0 6px}
+@media (max-width:640px){nav.links a.hide-sm{display:none} .cartbtn .lbl{display:none}}
+
+/* buttons, fields */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:1px solid transparent;border-radius:10px;padding:11px 18px;font-weight:600;cursor:pointer;text-decoration:none;transition:.15s}
+.btn.primary{background:var(--gold);color:#120e04;box-shadow:0 2px 12px rgba(212,175,55,.25)}.btn.primary:hover{filter:brightness(1.08)}
+.btn.accent{background:var(--gold);color:#120e04}.btn.accent:hover{filter:brightness(.95)}
+.btn.ghost{background:transparent;border-color:var(--line)}.btn.ghost:hover{background:var(--field)}
+.btn.wa{background:#1f9d55;color:#fff}
+.btn.sm{padding:7px 12px;font-size:.88rem;border-radius:8px}
+.btn.danger{color:var(--err);border-color:#5a2a27;background:var(--field)}
+.btn:disabled{opacity:.55;cursor:not-allowed}
+label.f{display:block;font-size:.85rem;font-weight:600;color:var(--muted);margin:0 0 14px}
+label.f input,label.f select,label.f textarea{display:block;width:100%;margin-top:6px;padding:11px 12px;border:1px solid var(--line);border-radius:10px;background:var(--field);font-size:1rem;color:var(--ink);font-weight:400}
+label.f textarea{min-height:90px;resize:vertical}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--accent);outline-offset:1px;border-color:transparent}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:560px){.row2{grid-template-columns:1fr}}
+
+/* hero */
+.hero{background:radial-gradient(120% 80% at 80% 0%,#3a3a3e 0%,transparent 55%),radial-gradient(90% 70% at 0% 100%,#2a2a2e 0%,transparent 60%),linear-gradient(160deg,#151517,#050506);color:#fff;border:2px solid #c9a23c;border-radius:22px;margin:22px 0;padding:44px 32px;position:relative;overflow:hidden}
+.hero h1{font-size:clamp(1.9rem,5vw,3rem);max-width:640px}
+.hero p{max-width:560px;opacity:.88;font-size:1.08rem;margin:14px 0 24px}
+.hero .deco{position:absolute;right:-30px;bottom:-40px;opacity:.16;pointer-events:none}
+@media (max-width:640px){.hero{padding:30px 22px;margin:16px 0}.hero .deco{width:200px}}
+
+/* filters */
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:8px 0 14px}
+.search{flex:1 1 260px;position:relative}
+.search input{width:100%;padding:12px 14px 12px 40px;border:1px solid var(--line);border-radius:999px;background:var(--field);font-size:1rem}
+.search svg{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--muted)}
+.toolbar select{padding:11px 14px;border:1px solid var(--line);border-radius:999px;background:var(--field)}
+.chips{display:flex;gap:8px;overflow-x:auto;padding-bottom:6px;margin-bottom:12px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;border:1px solid var(--line);background:var(--field);border-radius:999px;padding:7px 14px;cursor:pointer;font-size:.9rem;font-weight:500;color:var(--muted)}
+.chip.on{background:var(--gold);border-color:transparent;color:#120e04}
+
+/* grid */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:22px;margin-bottom:40px}
+@media (max-width:480px){.grid{grid-template-columns:repeat(2,1fr);gap:14px}}
+.book{background:var(--card);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;display:flex;flex-direction:column;box-shadow:var(--shadow);cursor:pointer;transition:transform .15s}
+.book:hover{transform:translateY(-3px)}
+.cover{aspect-ratio:2/3;width:100%;object-fit:cover;display:block;background:#eee}
+.gencover{aspect-ratio:2/3;display:flex;flex-direction:column;justify-content:space-between;padding:16px 14px;color:#fff;position:relative;overflow:hidden}
+.gencover::before{content:"";position:absolute;left:8px;top:0;bottom:0;width:3px;background:rgba(255,255,255,.18)}
+.gencover .t{font-family:Fraunces,Georgia,serif;font-weight:700;font-size:1.05rem;line-height:1.2;display:-webkit-box;-webkit-line-clamp:5;-webkit-box-orient:vertical;overflow:hidden}
+.gencover .a{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;opacity:.85}
+.book .info{padding:12px 12px 14px;display:flex;flex-direction:column;gap:2px;flex:1}
+.book .ti{font-weight:600;font-size:.95rem;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.book .au{color:var(--muted);font-size:.84rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.book .bot{display:flex;align-items:center;justify-content:space-between;margin-top:auto;padding-top:8px;gap:6px}
+.price{font-weight:700;color:var(--brand)}
+.add{border:0;background:var(--accent-l);color:var(--brand);border-radius:8px;padding:6px 10px;font-weight:600;cursor:pointer;font-size:.85rem}
+.add:hover{background:var(--gold);color:#120e04}
+.tag{position:absolute;top:10px;right:10px;background:var(--gold);color:#120e04;font-size:.7rem;font-weight:700;padding:3px 8px;border-radius:999px;letter-spacing:.04em;z-index:1}
+.tag.out{background:#6b6b6b}
+.cwrap{position:relative}
+.empty{text-align:center;color:var(--muted);padding:60px 16px}
+
+/* drawer & modal */
+.scrim{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:50;opacity:0;pointer-events:none;transition:.2s}
+.scrim.on{opacity:1;pointer-events:auto}
+.drawer{position:fixed;top:0;right:0;bottom:0;width:min(420px,100%);background:var(--paper);z-index:60;transform:translateX(100%);transition:.25s;display:flex;flex-direction:column;box-shadow:-10px 0 30px rgba(0,0,0,.12)}
+.drawer.on{transform:none}
+.dhead{display:flex;align-items:center;justify-content:space-between;padding:18px 18px;border-bottom:1px solid var(--line)}
+.dbody{flex:1;overflow:auto;padding:12px 18px}
+.dfoot{padding:16px 18px calc(16px + env(safe-area-inset-bottom));border-top:1px solid var(--line);background:var(--field)}
+.x{border:0;background:transparent;font-size:1.6rem;line-height:1;cursor:pointer;color:var(--muted);padding:4px 8px}
+.line{display:grid;grid-template-columns:52px 1fr auto;gap:12px;align-items:center;padding:12px 0;border-bottom:1px dashed var(--line)}
+.line .mini{width:52px;aspect-ratio:2/3;border-radius:6px;overflow:hidden}
+.line .mini .gencover{padding:4px}.line .mini .gencover .t{font-size:.45rem}.line .mini .gencover .a{display:none}
+.qty{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:8px;background:var(--field);margin-top:6px}
+.qty button{border:0;background:transparent;width:30px;height:30px;cursor:pointer;font-size:1.1rem}
+.qty span{min-width:22px;text-align:center;font-weight:600}
+.tot{display:flex;justify-content:space-between;font-size:1.1rem;font-weight:700;margin-bottom:12px}
+
+.modal{position:fixed;inset:0;z-index:70;display:grid;place-items:center;padding:16px;pointer-events:none;opacity:0;transition:.2s}
+.modal.on{opacity:1;pointer-events:auto}
+.mbox{background:var(--card);border-radius:18px;max-width:760px;width:100%;max-height:calc(100vh - 32px);overflow:auto;box-shadow:0 20px 60px rgba(0,0,0,.25);position:relative}
+.mbox .x{position:absolute;top:8px;right:8px;z-index:2;background:rgba(0,0,0,.6);border-radius:999px}
+.detail{display:grid;grid-template-columns:240px 1fr;gap:26px;padding:26px}
+.detail .cv{border-radius:10px;overflow:hidden;box-shadow:var(--shadow)}
+@media (max-width:620px){.detail{grid-template-columns:1fr;padding:20px}.detail .cv{max-width:190px;margin:0 auto}}
+.meta{color:var(--muted);font-size:.9rem;margin:4px 0 14px}
+.desc{white-space:pre-line;margin:14px 0 20px}
+
+/* sections */
+section.page{padding:24px 0 60px}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:24px;box-shadow:var(--shadow)}
+.co{display:grid;grid-template-columns:1.3fr 1fr;gap:22px;align-items:start}
+@media (max-width:820px){.co{grid-template-columns:1fr}}
+.opt{display:flex;gap:10px;margin-bottom:16px}
+.opt label{flex:1;border:1.5px solid var(--line);border-radius:12px;padding:12px 14px;cursor:pointer;background:var(--field)}
+.opt input{margin-right:6px;accent-color:var(--brand)}
+.opt label:has(input:checked){border-color:var(--brand);background:var(--accent-l)}
+.opt small{display:block;color:var(--muted);margin-top:2px}
+.sumline{display:flex;justify-content:space-between;gap:10px;padding:6px 0;font-size:.95rem}
+.sumline.big{font-size:1.15rem;font-weight:700;border-top:1px solid var(--line);margin-top:8px;padding-top:12px}
+.refbox{background:var(--accent-l);border:1px dashed var(--accent);border-radius:12px;padding:16px;text-align:center;margin:16px 0}
+.refbox .r{font-family:Fraunces,Georgia,serif;font-size:2rem;color:var(--brand);letter-spacing:.06em}
+.bank{display:grid;grid-template-columns:auto 1fr;gap:6px 16px;font-size:.95rem}
+.bank dt{color:var(--muted)}.bank dd{margin:0;font-weight:600}
+.err{color:var(--err);font-size:.92rem;margin:8px 0}
+.note{color:var(--muted);font-size:.9rem}
+.status{display:inline-block;padding:3px 10px;border-radius:999px;font-size:.78rem;font-weight:700;text-transform:capitalize}
+.s-pending{background:rgba(227,154,91,.15);color:#f0b47e}.s-paid{background:rgba(110,170,255,.15);color:#9cc3ff}.s-ready{background:rgba(170,130,255,.15);color:#c8b0ff}
+.s-shipped{background:rgba(90,200,200,.15);color:#8fe0e0}.s-completed{background:rgba(92,197,138,.15);color:var(--ok)}.s-cancelled{background:rgba(255,107,97,.15);color:var(--err)}
+
+/* admin */
+.tabs{display:flex;gap:6px;border-bottom:1px solid var(--line);margin-bottom:18px;overflow-x:auto}
+.tabs button{border:0;background:transparent;padding:12px 16px;font-weight:600;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap}
+.tabs button.on{color:var(--brand);border-bottom-color:var(--accent)}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:18px}
+.stat{background:var(--field);border:1px solid var(--line);border-radius:12px;padding:14px}
+.stat b{display:block;font-size:1.4rem;font-family:Fraunces,Georgia,serif;color:var(--brand)}
+.stat span{color:var(--muted);font-size:.85rem}
+.olist{display:flex;flex-direction:column;gap:12px}
+.ocard{background:var(--field);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+.ocard .h{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;justify-content:space-between}
+.ocard .items{font-size:.9rem;color:var(--muted);margin:8px 0}
+.ocard .acts{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:10px}
+.ocard select{padding:7px 10px;border:1px solid var(--line);border-radius:8px;background:var(--field)}
+.btable{width:100%;border-collapse:collapse;font-size:.92rem}
+.btable th{text-align:left;color:var(--muted);font-weight:600;padding:8px;border-bottom:1px solid var(--line)}
+.btable td{padding:8px;border-bottom:1px solid var(--line);vertical-align:middle}
+.btable .thumb{width:38px;aspect-ratio:2/3;border-radius:4px;overflow:hidden}
+.btable .thumb .gencover{padding:2px}.btable .thumb .gencover .t,.btable .thumb .gencover .a{display:none}
+@media (max-width:640px){.btable .hsm{display:none}}
+.coverpick{display:flex;gap:14px;align-items:center;margin-bottom:14px}
+.coverpick .pv{width:80px;aspect-ratio:2/3;border-radius:8px;overflow:hidden;background:#eee;flex:none}
+.check{display:flex;align-items:center;gap:8px;font-weight:500;margin-bottom:10px;cursor:pointer}
+.check input{width:18px;height:18px;accent-color:var(--brand)}
+
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(120px);background:#1c1a15;border:1px solid #c9a23c;color:var(--ink);padding:12px 18px;border-radius:12px;z-index:100;transition:.25s;max-width:calc(100% - 32px);box-shadow:0 10px 30px rgba(0,0,0,.25)}
+.toast.on{transform:translateX(-50%)}
+footer{border-top:1px solid var(--line);padding:30px 0 40px;color:var(--muted);font-size:.9rem}
+footer .wrap{display:flex;flex-wrap:wrap;gap:16px;justify-content:space-between}
+.spin{width:28px;height:28px;border:3px solid var(--line);border-top-color:var(--brand);border-radius:50%;animation:sp 0.8s linear infinite;margin:40px auto}
+@keyframes sp{to{transform:rotate(360deg)}}
+
+/* ---- black & gold theme extras ---- */
+:root{color-scheme:dark}
+body{background:radial-gradient(70% 50% at 85% 10%,rgba(255,255,255,.07),transparent 60%),radial-gradient(60% 50% at 10% 60%,rgba(255,255,255,.05),transparent 60%),var(--paper);background-attachment:fixed}
+.logo{color:transparent;background:var(--gold);-webkit-background-clip:text;background-clip:text}
+.hero{box-shadow:0 0 0 6px var(--paper),0 0 0 7px rgba(212,175,55,.45),var(--shadow)}
+.hero::after{content:"";position:absolute;inset:14px;border:1px solid rgba(233,201,100,.55);border-radius:14px;pointer-events:none}
+.hero h1{color:transparent;background:var(--gold);-webkit-background-clip:text;background-clip:text}
+.hero .deco path{fill:#d4af37}
+.panel,.mbox{border:1px solid rgba(212,175,55,.35)}
+.book{border-color:#2a2720}.book:hover{border-color:#c9a23c;box-shadow:0 0 0 1px rgba(212,175,55,.3),0 12px 30px rgba(0,0,0,.6)}
+.gencover{box-shadow:inset 0 0 0 1px rgba(212,175,55,.25)}
+.gencover::after{content:"";position:absolute;inset:8px;border:1px solid rgba(233,201,100,.55);pointer-events:none}
+.gencover .t{color:#f1d98a}.gencover .a{color:#cbbf9f}
+.gencover::before{background:rgba(212,175,55,.35)}
+.price,.stat b,.refbox .r{color:#e9c964}
+.add{color:#e9c964}
+.refbox{border-color:#c9a23c}
+nav.links a:hover,nav.links a.on{color:#e9c964}
+.tabs button.on{color:#e9c964}
+h2,h3{color:#f6ecd0}
+.mbox{background:#111113}
+.drawer{background:#0d0d0f;border-left:1px solid rgba(212,175,55,.35)}
+.dfoot{background:#121214}
+.cover{background:#1a1a1d}
+.spin{border-color:#2e2b25;border-top-color:#d4af37}
+input::placeholder,textarea::placeholder{color:#6f6a5f}
+select option{background:#1a1a1d;color:var(--ink)}
+input[type=search]::-webkit-search-cancel-button{filter:invert(1)}
+footer a{color:#e9c964}
+.cwrap .gencover{padding-top:38px}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <a class="logo" href="#shop">
+      <svg width="30" height="30" viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="14" fill="#0b0b0c" stroke="#d4af37" stroke-width="3"/><path d="M14 18c7-3 13-2 18 2v28c-5-4-11-5-18-2z" fill="#f4e3a8"/><path d="M50 18c-7-3-13-2-18 2v28c5-4 11-5 18-2z" fill="#d4af37"/></svg>
+      <span id="shopName">Benedict Books</span>
+    </a>
+    <nav class="links">
+      <a href="#shop" data-nav="shop" class="hide-sm">Shop</a>
+      <a href="#track" data-nav="track">Track order</a>
+      <button class="cartbtn" id="cartBtn" aria-label="Open cart">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6h15l-1.5 9h-12z"/><path d="M6 6 5 3H2"/><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/></svg>
+        <span class="lbl">Cart</span><span class="n" id="cartCount">0</span>
+      </button>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <!-- SHOP -->
+  <section id="v-shop" class="view">
+    <div class="hero">
+      <h1 id="heroTitle">Good books, delivered to your door.</h1>
+      <p id="heroAbout">An independent bookshop. Browse the shelves, order online and pay by EFT — delivery or collection.</p>
+      <a href="#books" class="btn accent" onclick="document.getElementById('catalog').scrollIntoView({behavior:'smooth'});return false">Browse books</a>
+      <svg class="deco" width="300" height="300" viewBox="0 0 64 64"><path d="M6 14c9-4 17-3 24 3v38c-7-6-15-7-24-3z" fill="#fff"/><path d="M58 14c-9-4-17-3-24 3v38c7-6 15-7 24-3z" fill="#fff"/></svg>
+    </div>
+    <div id="catalog">
+      <div class="toolbar">
+        <div class="search">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+          <input id="q" type="search" placeholder="Search title, author or ISBN…" aria-label="Search books">
+        </div>
+        <select id="sort" aria-label="Sort">
+          <option value="feat">Featured</option>
+          <option value="new">Newest</option>
+          <option value="plh">Price: low to high</option>
+          <option value="phl">Price: high to low</option>
+          <option value="az">Title A–Z</option>
+        </select>
+      </div>
+      <div class="chips" id="chips"></div>
+      <div id="grid" class="grid"><div class="spin"></div></div>
+    </div>
+  </section>
+
+  <!-- CHECKOUT -->
+  <section id="v-checkout" class="view page hidden">
+    <h2 style="margin-bottom:18px">Checkout</h2>
+    <div class="co">
+      <form class="panel" id="coForm" novalidate>
+        <h3 style="margin-bottom:14px;font-size:1.1rem">Your details</h3>
+        <label class="f">Full name<input name="name" autocomplete="name" required></label>
+        <div class="row2">
+          <label class="f">Phone / WhatsApp<input name="phone" type="tel" autocomplete="tel" required placeholder="e.g. 082 123 4567"></label>
+          <label class="f">Email (optional)<input name="email" type="email" autocomplete="email"></label>
+        </div>
+        <h3 style="margin:6px 0 12px;font-size:1.1rem">How would you like to receive it?</h3>
+        <div class="opt">
+          <label><input type="radio" name="delivery" value="delivery" checked>Delivery<small id="delNote"></small></label>
+          <label><input type="radio" name="delivery" value="collect">Collect<small id="colNote"></small></label>
+        </div>
+        <label class="f" id="addrWrap">Delivery address<textarea name="address" autocomplete="street-address" placeholder="Street, suburb, city, postal code"></textarea></label>
+        <label class="f">Notes (optional)<textarea name="notes" style="min-height:60px" placeholder="Anything we should know?"></textarea></label>
+        <p class="note">Payment is by EFT. You'll get your order number and banking details on the next screen.</p>
+        <div class="err" id="coErr"></div>
+        <button class="btn primary" style="width:100%" id="coBtn">Place order</button>
+      </form>
+      <div class="panel">
+        <h3 style="margin-bottom:10px;font-size:1.1rem">Order summary</h3>
+        <div id="coSum"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONFIRMATION -->
+  <section id="v-done" class="view page hidden">
+    <div class="panel" style="max-width:640px;margin:0 auto">
+      <h2>Thank you — order placed!</h2>
+      <p class="note" style="margin-top:6px">Keep this order number. Use it as your payment reference and to track your order.</p>
+      <div class="refbox"><div class="note">Order number</div><div class="r" id="doneRef"></div><div style="margin-top:4px">Total <b id="doneTotal"></b></div></div>
+      <div id="doneBank"></div>
+      <div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:18px">
+        <a class="btn wa" id="doneWa" target="_blank" rel="noopener">Send order on WhatsApp</a>
+        <a class="btn ghost" href="#shop">Continue shopping</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- TRACK -->
+  <section id="v-track" class="view page hidden">
+    <div class="panel" style="max-width:520px;margin:0 auto">
+      <h2 style="margin-bottom:6px">Track your order</h2>
+      <p class="note" style="margin:0 0 16px">Enter your order number and the phone number you ordered with.</p>
+      <form id="trForm">
+        <label class="f">Order number<input name="ref" placeholder="BB-XXXXXX" required style="text-transform:uppercase"></label>
+        <label class="f">Phone number<input name="phone" type="tel" required></label>
+        <button class="btn primary" style="width:100%">Check status</button>
+      </form>
+      <div id="trOut" style="margin-top:16px"></div>
+    </div>
+  </section>
+
+  <!-- ADMIN -->
+  <section id="v-admin" class="view page hidden">
+    <div id="adLogin" class="panel" style="max-width:420px;margin:0 auto">
+      <h2 style="margin-bottom:6px">Shop owner sign in</h2>
+      <p class="note" style="margin:0 0 16px">Manage books, orders and shop settings.</p>
+      <form id="lgForm">
+        <label class="f">Username<input name="u" autocomplete="username" required></label>
+        <label class="f">Password<input name="p" type="password" autocomplete="current-password" required></label>
+        <div class="err" id="lgErr"></div>
+        <button class="btn primary" style="width:100%">Sign in</button>
+      </form>
+    </div>
+    <div id="adBody" class="hidden">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px">
+        <h2>Shop dashboard</h2>
+        <div style="display:flex;gap:8px"><a class="btn ghost sm" href="#shop">View shop</a><button class="btn ghost sm" id="logout">Sign out</button></div>
+      </div>
+      <div class="tabs">
+        <button data-tab="orders" class="on">Orders</button>
+        <button data-tab="books">Books</button>
+        <button data-tab="settings">Settings</button>
+      </div>
+      <div id="t-orders">
+        <div class="stats" id="stats"></div>
+        <div class="toolbar">
+          <select id="ofilter"><option value="">All orders</option><option value="open">Open (not completed)</option><option>pending</option><option>paid</option><option>ready</option><option>shipped</option><option>completed</option><option>cancelled</option></select>
+          <button class="btn ghost sm" id="orefresh">Refresh</button>
+        </div>
+        <div class="olist" id="olist"></div>
+      </div>
+      <div id="t-books" class="hidden">
+        <div class="toolbar">
+          <div class="search"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="bq" type="search" placeholder="Search your books…"></div>
+          <button class="btn primary" id="addBook">+ Add book</button>
+        </div>
+        <div class="panel" style="padding:8px;overflow-x:auto"><table class="btable"><thead><tr><th></th><th>Title</th><th class="hsm">Category</th><th>Price</th><th>Stock</th><th class="hsm">Status</th><th></th></tr></thead><tbody id="btbody"></tbody></table></div>
+      </div>
+      <div id="t-settings" class="hidden">
+        <form class="panel" id="stForm" style="max-width:720px">
+          <h3 style="margin-bottom:14px;font-size:1.1rem">Shop details</h3>
+          <div class="row2"><label class="f">Shop name<input name="shop_name"></label><label class="f">Tagline (homepage heading)<input name="tagline"></label></div>
+          <label class="f">About the shop<textarea name="about"></textarea></label>
+          <div class="row2"><label class="f">WhatsApp number (orders are sent here)<input name="whatsapp" type="tel" placeholder="e.g. 0821234567"></label><label class="f">Contact email<input name="email" type="email"></label></div>
+          <h3 style="margin:8px 0 14px;font-size:1.1rem">Banking details (shown to customers for EFT)</h3>
+          <div class="row2"><label class="f">Bank<input name="bank_name"></label><label class="f">Account holder<input name="account_name"></label></div>
+          <div class="row2"><label class="f">Account number<input name="account_number"></label><label class="f">Branch code<input name="branch_code"></label></div>
+          <h3 style="margin:8px 0 14px;font-size:1.1rem">Delivery</h3>
+          <div class="row2"><label class="f">Delivery fee (R)<input name="delivery_fee" type="number" min="0" step="0.01"></label><label class="f">Delivery note<input name="delivery_note"></label></div>
+          <label class="f">Collection note<input name="collect_note"></label>
+          <button class="btn primary">Save settings</button>
+        </form>
+        <form class="panel" id="pwForm" style="max-width:720px;margin-top:18px">
+          <h3 style="margin-bottom:14px;font-size:1.1rem">Change password</h3>
+          <div class="row2"><label class="f">Current password<input name="old" type="password" autocomplete="current-password" required></label><label class="f">New password (8+ characters)<input name="nw" type="password" autocomplete="new-password" required minlength="8"></label></div>
+          <button class="btn primary">Update password</button>
+        </form>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div><b class="serif" style="color:#e9c964" id="fName">Benedict Books</b><br><span id="fContact"></span></div>
+    <div><a href="#track">Track an order</a> · <a href="#admin">Owner login</a></div>
+  </div>
+</footer>
+
+<!-- cart drawer -->
+<div class="scrim" id="scrim"></div>
+<aside class="drawer" id="drawer" aria-label="Shopping cart">
+  <div class="dhead"><h3>Your cart</h3><button class="x" data-close aria-label="Close">×</button></div>
+  <div class="dbody" id="cartBody"></div>
+  <div class="dfoot"><div class="tot"><span>Subtotal</span><span id="cartSub">R0.00</span></div><button class="btn primary" style="width:100%" id="toCheckout">Checkout</button></div>
+</aside>
+
+<!-- book modal -->
+<div class="modal" id="bookModal"><div class="mbox"><button class="x" data-close aria-label="Close">×</button><div id="bookDetail"></div></div></div>
+
+<!-- edit book modal -->
+<div class="modal" id="editModal"><div class="mbox" style="max-width:620px"><button class="x" data-close aria-label="Close">×</button>
+  <form id="bkForm" style="padding:24px">
+    <h3 id="bkTitle" style="margin-bottom:16px">Add book</h3>
+    <input type="hidden" name="id">
+    <div class="coverpick"><div class="pv" id="bkPv"></div><div><label class="btn ghost sm" style="cursor:pointer">Upload cover photo<input type="file" accept="image/*" id="bkFile" hidden></label> <button type="button" class="btn ghost sm" id="bkNoCover">Remove</button><p class="note" style="margin:6px 0 0">Optional — a cover is generated automatically if you skip it.</p></div></div>
+    <label class="f">Title<input name="title" required></label>
+    <div class="row2"><label class="f">Author<input name="author"></label><label class="f">Category<input name="category" list="catList" placeholder="e.g. Fiction"></label></div>
+    <datalist id="catList"></datalist>
+    <div class="row2"><label class="f">Price (R)<input name="price" type="number" min="0" step="0.01" required></label><label class="f">In stock<input name="stock" type="number" min="0" step="1" required></label></div>
+    <label class="f">ISBN (optional)<input name="isbn"></label>
+    <label class="f">Description<textarea name="description"></textarea></label>
+    <label class="check"><input type="checkbox" name="featured"> Feature this book at the top of the shop</label>
+    <label class="check"><input type="checkbox" name="active" checked> Show in shop (untick to hide)</label>
+    <div class="err" id="bkErr"></div>
+    <button class="btn primary" style="width:100%">Save book</button>
+  </form>
+</div></div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const CONFIG = {
+  SUPABASE_URL: 'https://uwxnbaicwfbygvkiyhcf.supabase.co',
+  SUPABASE_KEY: 'sb_publishable_L9FBKzeVRDw0NqRFAdAdOA_uJKvNBRq'
+};
+const sb = supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_KEY, {auth:{persistSession:false}});
+const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const money = n => 'R' + Number(n||0).toLocaleString('en-ZA',{minimumFractionDigits:2,maximumFractionDigits:2});
+const store = { get(k,d){try{return JSON.parse(localStorage.getItem(k)) ?? d}catch{return d}}, set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch{}} };
+function toast(msg){const t=$('#toast');t.textContent=msg;t.classList.add('on');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('on'),2600)}
+async function rpc(fn, args){const {data,error}=await sb.rpc(fn,args||{}); if(error) throw new Error(error.message||'Something went wrong'); return data}
+function waNumber(n){let d=String(n||'').replace(/\D/g,''); if(d.startsWith('0')) d='27'+d.slice(1); return d}
+
+let BOOKS = [], SETTINGS = {}, CAT = 'All';
+let cart = store.get('bb_cart', []); // [{id,qty}]
+
+// ---------- covers ----------
+const PALETTES = [['#0d0d0f','#2a2a2e'],['#141210','#3a3226'],['#0a0a0a','#26262a'],['#16130c','#40351c'],['#101012','#33302a'],['#0c0b09','#2e2716']];
+function hash(s){let h=0;for(const c of String(s))h=(h*31+c.charCodeAt(0))|0;return Math.abs(h)}
+function coverHTML(b){
+  if(b.cover) return `<img class="cover" src="${esc(b.cover)}" alt="Cover of ${esc(b.title)}" loading="lazy">`;
+  const [a,c]=PALETTES[hash(b.title+b.author)%PALETTES.length];
+  return `<div class="gencover" style="background:linear-gradient(160deg,${a},${c})"><div class="t">${esc(b.title)}</div><div class="a">${esc(b.author)}</div></div>`;
+}
+
+// ---------- settings ----------
+function applySettings(){
+  const s=SETTINGS, name=s.shop_name||'Benedict Books';
+  document.title=name; $('#shopName').textContent=name; $('#fName').textContent=name;
+  if(s.tagline) $('#heroTitle').textContent=s.tagline;
+  if(s.about) $('#heroAbout').textContent=s.about;
+  const fee=Number(s.delivery_fee||0);
+  $('#delNote').textContent=(fee?money(fee)+' · ':'Free · ')+(s.delivery_note||'');
+  $('#colNote').textContent='Free · '+(s.collect_note||'');
+  const c=[]; if(s.whatsapp) c.push('WhatsApp '+s.whatsapp); if(s.email) c.push(s.email);
+  $('#fContact').textContent=c.join(' · ');
+}
+
+// ---------- catalog ----------
+async function loadShop(){
+  try{
+    const [books, settings] = await Promise.all([rpc('bb_list_books'), rpc('bb_get_settings')]);
+    BOOKS=books||[]; SETTINGS=settings||{};
+    applySettings();
+    cart = cart.filter(l => BOOKS.some(b=>b.id===l.id));
+    saveCart(); renderChips(); renderGrid();
+  }catch(e){ $('#grid').innerHTML=`<div class="empty">Couldn't load the shop right now. Please refresh.<br><small>${esc(e.message)}</small></div>` }
+}
+function renderChips(){
+  const cats=['All',...[...new Set(BOOKS.map(b=>b.category))].sort()];
+  $('#chips').innerHTML=cats.map(c=>`<button class="chip ${c===CAT?'on':''}" data-cat="${esc(c)}">${esc(c)}</button>`).join('');
+}
+function renderGrid(){
+  const q=$('#q').value.trim().toLowerCase(), s=$('#sort').value;
+  let list=BOOKS.filter(b=>(CAT==='All'||b.category===CAT) && (!q || (b.title+' '+b.author+' '+b.isbn+' '+b.category).toLowerCase().includes(q)));
+  const by={feat:(a,b)=>(b.featured-a.featured)||new Date(b.created_at)-new Date(a.created_at), new:(a,b)=>new Date(b.created_at)-new Date(a.created_at),
+    plh:(a,b)=>a.price-b.price, phl:(a,b)=>b.price-a.price, az:(a,b)=>a.title.localeCompare(b.title)};
+  list.sort(by[s]);
+  if(!BOOKS.length){ $('#grid').innerHTML=`<div class="empty" style="grid-column:1/-1"><h3>New stock coming soon</h3><p>Books are being added to the shelves — please check back shortly.</p></div>`; return }
+  if(!list.length){ $('#grid').innerHTML=`<div class="empty" style="grid-column:1/-1">No books match your search.</div>`; return }
+  $('#grid').innerHTML=list.map(b=>`<article class="book" data-id="${b.id}">
+    <div class="cwrap">${b.stock<1?'<span class="tag out">SOLD OUT</span>':b.featured?'<span class="tag">FEATURED</span>':''}${coverHTML(b)}</div>
+    <div class="info"><div class="ti">${esc(b.title)}</div><div class="au">${esc(b.author)}</div>
+    <div class="bot"><span class="price">${money(b.price)}</span>${b.stock>0?`<button class="add" data-add="${b.id}">Add</button>`:''}</div></div></article>`).join('');
+}
+$('#q').addEventListener('input',renderGrid); $('#sort').addEventListener('change',renderGrid);
+$('#chips').addEventListener('click',e=>{const c=e.target.closest('[data-cat]'); if(!c) return; CAT=c.dataset.cat; renderChips(); renderGrid()});
+$('#grid').addEventListener('click',e=>{
+  const a=e.target.closest('[data-add]'); if(a){e.stopPropagation(); addToCart(+a.dataset.add); return}
+  const card=e.target.closest('.book'); if(card) openBook(+card.dataset.id);
+});
+function openBook(id){
+  const b=BOOKS.find(x=>x.id===id); if(!b) return;
+  $('#bookDetail').innerHTML=`<div class="detail"><div class="cv">${coverHTML(b)}</div><div>
+    <h2>${esc(b.title)}</h2><div class="meta">${esc(b.author)}${b.author?' · ':''}${esc(b.category)}${b.isbn?' · ISBN '+esc(b.isbn):''}</div>
+    <div class="price" style="font-size:1.5rem">${money(b.price)}</div>
+    <div class="note">${b.stock>0?(b.stock<=3?`Only ${b.stock} left`:'In stock'):'Sold out'}</div>
+    <div class="desc">${esc(b.description||'')}</div>
+    ${b.stock>0?`<button class="btn primary" data-add-m="${b.id}">Add to cart</button>`:''}</div></div>`;
+  openLayer('#bookModal');
+}
+$('#bookDetail').addEventListener('click',e=>{const a=e.target.closest('[data-add-m]'); if(a){addToCart(+a.dataset.addM); closeLayers(); openCart()}});
+
+// ---------- cart ----------
+function saveCart(){store.set('bb_cart',cart); $('#cartCount').textContent=cart.reduce((s,l)=>s+l.qty,0)}
+function addToCart(id){
+  const b=BOOKS.find(x=>x.id===id); if(!b) return;
+  const l=cart.find(x=>x.id===id);
+  if(l){ if(l.qty>=b.stock){toast(`Only ${b.stock} in stock`);return} l.qty++ } else cart.push({id,qty:1});
+  saveCart(); renderCart(); toast(`Added “${b.title}” to cart`);
+}
+function cartLines(){return cart.map(l=>({...l,b:BOOKS.find(x=>x.id===l.id)})).filter(l=>l.b)}
+function subtotal(){return cartLines().reduce((s,l)=>s+l.b.price*l.qty,0)}
+function renderCart(){
+  const ls=cartLines();
+  $('#cartBody').innerHTML=ls.length?ls.map(l=>`<div class="line"><div class="mini">${coverHTML(l.b)}</div>
+    <div><div style="font-weight:600;line-height:1.3">${esc(l.b.title)}</div><div class="note">${money(l.b.price)}</div>
+    <div class="qty"><button data-q="${l.id}" data-d="-1" aria-label="Less">−</button><span>${l.qty}</span><button data-q="${l.id}" data-d="1" aria-label="More">+</button></div></div>
+    <div style="font-weight:700">${money(l.b.price*l.qty)}</div></div>`).join('')
+    :`<div class="empty">Your cart is empty.</div>`;
+  $('#cartSub').textContent=money(subtotal());
+  $('#toCheckout').disabled=!ls.length;
+}
+$('#cartBody').addEventListener('click',e=>{
+  const q=e.target.closest('[data-q]'); if(!q) return;
+  const id=+q.dataset.q, l=cart.find(x=>x.id===id), b=BOOKS.find(x=>x.id===id);
+  l.qty+=+q.dataset.d; if(b && l.qty>b.stock){l.qty=b.stock;toast(`Only ${b.stock} in stock`)}
+  if(l.qty<1) cart=cart.filter(x=>x.id!==id);
+  saveCart(); renderCart();
+});
+function openCart(){renderCart(); openLayer('#drawer')}
+$('#cartBtn').onclick=openCart;
+$('#toCheckout').onclick=()=>{closeLayers(); location.hash='#checkout'};
+
+// ---------- layers ----------
+function openLayer(sel){$(sel).classList.add('on'); $('#scrim').classList.add('on'); document.body.style.overflow='hidden'}
+function closeLayers(){$$('.drawer.on,.modal.on').forEach(x=>x.classList.remove('on')); $('#scrim').classList.remove('on'); document.body.style.overflow=''}
+document.addEventListener('click',e=>{ if(e.target.matches('[data-close]')||e.target.id==='scrim'||e.target.classList.contains('modal')) closeLayers() });
+document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeLayers() });
+
+// ---------- checkout ----------
+function renderCheckout(){
+  const ls=cartLines(); if(!ls.length){location.hash='#shop';return}
+  const del=$('#coForm').delivery.value==='delivery', fee=del?Number(SETTINGS.delivery_fee||0):0, sub=subtotal();
+  $('#addrWrap').classList.toggle('hidden',!del);
+  $('#coSum').innerHTML=ls.map(l=>`<div class="sumline"><span>${l.qty} × ${esc(l.b.title)}</span><span>${money(l.b.price*l.qty)}</span></div>`).join('')
+    +`<div class="sumline" style="border-top:1px solid var(--line);margin-top:8px;padding-top:10px"><span>Subtotal</span><span>${money(sub)}</span></div>`
+    +`<div class="sumline"><span>${del?'Delivery':'Collection'}</span><span>${fee?money(fee):'Free'}</span></div>`
+    +`<div class="sumline big"><span>Total</span><span>${money(sub+fee)}</span></div>`;
+}
+$('#coForm').addEventListener('change',renderCheckout);
+$('#coForm').addEventListener('submit',async e=>{
+  e.preventDefault(); const f=e.target, btn=$('#coBtn'); $('#coErr').textContent='';
+  const name=f.name.value.trim(), phone=f.phone.value.trim();
+  if(!name||!phone){$('#coErr').textContent='Please enter your name and phone number.';return}
+  if(phone.replace(/\D/g,'').length<9){$('#coErr').textContent='Please enter a valid phone number.';return}
+  if(f.delivery.value==='delivery'&&!f.address.value.trim()){$('#coErr').textContent='Please enter your delivery address.';return}
+  btn.disabled=true; btn.textContent='Placing order…';
+  try{
+    const r=await rpc('bb_place_order',{p_name:name,p_phone:phone,p_email:f.email.value.trim(),p_address:f.address.value.trim(),
+      p_delivery:f.delivery.value,p_items:cart.map(l=>({id:l.id,qty:l.qty})),p_notes:f.notes.value.trim()});
+    store.set('bb_last',{...r,name,phone,delivery:f.delivery.value,address:f.address.value.trim()});
+    cart=[]; saveCart(); f.reset(); location.hash='#done'; loadShop();
+  }catch(err){ $('#coErr').textContent=err.message; loadShop(); }
+  finally{ btn.disabled=false; btn.textContent='Place order' }
+});
+
+function renderDone(){
+  const o=store.get('bb_last',null); if(!o){location.hash='#shop';return}
+  const s=SETTINGS;
+  $('#doneRef').textContent=o.ref; $('#doneTotal').textContent=money(o.total);
+  const hasBank=s.account_number;
+  $('#doneBank').innerHTML=hasBank?`<h3 style="font-size:1.05rem;margin-bottom:10px">Pay by EFT</h3><dl class="bank">
+    ${s.bank_name?`<dt>Bank</dt><dd>${esc(s.bank_name)}</dd>`:''}<dt>Account holder</dt><dd>${esc(s.account_name)}</dd>
+    <dt>Account number</dt><dd>${esc(s.account_number)}</dd>${s.branch_code?`<dt>Branch code</dt><dd>${esc(s.branch_code)}</dd>`:''}
+    <dt>Reference</dt><dd>${esc(o.ref)}</dd><dt>Amount</dt><dd>${money(o.total)}</dd></dl>
+    <p class="note" style="margin-top:12px">Your order is processed once payment reflects. Please send proof of payment via WhatsApp.</p>`
+    :`<p class="note">We'll contact you on ${esc(o.phone)} with payment details shortly.</p>`;
+  const wa=waNumber(s.whatsapp);
+  if(wa){
+    const msg=`Hi! I've placed order ${o.ref} on ${s.shop_name||'Benedict Books'}.\n\n`+o.items.map(i=>`${i.qty} × ${i.title} — ${money(i.price*i.qty)}`).join('\n')
+      +`\n\nTotal: ${money(o.total)} (${o.delivery==='delivery'?'delivery':'collection'})\nName: ${o.name}\nPhone: ${o.phone}`+(o.address?`\nAddress: ${o.address}`:'');
+    $('#doneWa').href=`https://wa.me/${wa}?text=${encodeURIComponent(msg)}`; $('#doneWa').classList.remove('hidden');
+  } else $('#doneWa').classList.add('hidden');
+}
+
+// ---------- track ----------
+const STEPS={pending:'Awaiting payment',paid:'Payment received',ready:'Ready for collection',shipped:'On its way',completed:'Completed',cancelled:'Cancelled'};
+$('#trForm').addEventListener('submit',async e=>{
+  e.preventDefault(); const f=e.target; $('#trOut').innerHTML='<div class="spin"></div>';
+  try{
+    const o=await rpc('bb_track_order',{p_ref:f.ref.value,p_phone:f.phone.value});
+    if(!o){$('#trOut').innerHTML='<p class="err">No order found with that number and phone. Please check and try again.</p>';return}
+    $('#trOut').innerHTML=`<div class="refbox" style="text-align:left"><div style="display:flex;justify-content:space-between;align-items:center;gap:10px">
+      <b class="serif" style="font-size:1.3rem">${esc(o.ref)}</b><span class="status s-${o.status}">${esc(o.status)}</span></div>
+      <p style="margin:8px 0 4px;font-weight:600">${STEPS[o.status]||''}</p>
+      <div class="note">Placed ${new Date(o.created_at).toLocaleString('en-ZA',{dateStyle:'medium',timeStyle:'short'})} · ${money(o.total)}</div>
+      <ul style="margin:10px 0 0;padding-left:18px">${o.items.map(i=>`<li>${i.qty} × ${esc(i.title)}</li>`).join('')}</ul></div>`;
+  }catch(err){$('#trOut').innerHTML=`<p class="err">${esc(err.message)}</p>`}
+});
+
+// ---------- admin ----------
+let TOKEN=sessionStorage.getItem('bb_tok')||'', ORDERS=[], ABOOKS=[];
+async function arpc(fn,args){
+  try{return await rpc(fn,{p_token:TOKEN,...args})}
+  catch(e){ if(/session expired/i.test(e.message)){TOKEN='';sessionStorage.removeItem('bb_tok');showAdmin()} throw e }
+}
+function showAdmin(){
+  $('#adLogin').classList.toggle('hidden',!!TOKEN); $('#adBody').classList.toggle('hidden',!TOKEN);
+  if(TOKEN){loadOrders();loadABooks();fillSettings()}
+}
+$('#lgForm').addEventListener('submit',async e=>{
+  e.preventDefault(); $('#lgErr').textContent='';
+  try{TOKEN=await rpc('bb_admin_login',{p_username:e.target.u.value,p_password:e.target.p.value}); sessionStorage.setItem('bb_tok',TOKEN); e.target.reset(); showAdmin()}
+  catch(err){$('#lgErr').textContent=err.message}
+});
+$('#logout').onclick=async()=>{try{await rpc('bb_admin_logout',{p_token:TOKEN})}catch{} TOKEN='';sessionStorage.removeItem('bb_tok');showAdmin()};
+$$('.tabs button').forEach(b=>b.onclick=()=>{$$('.tabs button').forEach(x=>x.classList.toggle('on',x===b)); ['orders','books','settings'].forEach(t=>$('#t-'+t).classList.toggle('hidden',t!==b.dataset.tab))});
+
+async function loadOrders(){
+  $('#olist').innerHTML='<div class="spin"></div>';
+  try{ORDERS=await arpc('bb_admin_orders'); renderOrders()}catch(e){$('#olist').innerHTML=`<p class="err">${esc(e.message)}</p>`}
+}
+function renderOrders(){
+  const live=ORDERS.filter(o=>o.status!=='cancelled'), month=new Date(); month.setDate(1); month.setHours(0,0,0,0);
+  const paidish=live.filter(o=>o.status!=='pending');
+  $('#stats').innerHTML=[
+    [ORDERS.filter(o=>o.status==='pending').length,'Awaiting payment'],
+    [ORDERS.filter(o=>['paid','ready','shipped'].includes(o.status)).length,'To fulfil'],
+    [money(paidish.filter(o=>new Date(o.created_at)>=month).reduce((s,o)=>s+Number(o.total),0)),'Paid sales this month'],
+    [money(paidish.reduce((s,o)=>s+Number(o.total),0)),'Paid sales all time']
+  ].map(([b,s])=>`<div class="stat"><b>${b}</b><span>${s}</span></div>`).join('');
+  const f=$('#ofilter').value;
+  const list=ORDERS.filter(o=>!f||(f==='open'?!['completed','cancelled'].includes(o.status):o.status===f));
+  $('#olist').innerHTML=list.length?list.map(o=>{
+    const wa=waNumber(o.phone), msg=`Hi ${o.customer_name.split(' ')[0]}, this is ${SETTINGS.shop_name||'Benedict Books'} about your order ${o.ref}. `;
+    return `<div class="ocard"><div class="h"><div><b class="serif" style="font-size:1.1rem">${esc(o.ref)}</b> <span class="status s-${o.status}">${esc(o.status)}</span></div>
+      <b>${money(o.total)}</b></div>
+      <div style="margin-top:6px"><b>${esc(o.customer_name)}</b> · <a href="tel:${esc(o.phone)}">${esc(o.phone)}</a>${o.email?' · '+esc(o.email):''}</div>
+      <div class="note">${new Date(o.created_at).toLocaleString('en-ZA',{dateStyle:'medium',timeStyle:'short'})} · ${o.delivery==='delivery'?'Delivery to: '+esc(o.address):'Collection'}</div>
+      <div class="items">${o.items.map(i=>`${i.qty} × ${esc(i.title)}`).join(' · ')}${Number(o.delivery_fee)?` · delivery ${money(o.delivery_fee)}`:''}</div>
+      ${o.notes?`<div class="note"><i>Note: ${esc(o.notes)}</i></div>`:''}
+      <div class="acts"><select data-st="${esc(o.ref)}">${Object.keys(STEPS).map(s=>`<option value="${s}" ${s===o.status?'selected':''}>${s}</option>`).join('')}</select>
+      <a class="btn wa sm" target="_blank" rel="noopener" href="https://wa.me/${wa}?text=${encodeURIComponent(msg)}">WhatsApp</a>
+      <button class="btn danger sm" data-del-o="${esc(o.ref)}">Delete</button></div></div>`}).join('')
+    :'<div class="empty">No orders yet.</div>';
+}
+$('#ofilter').onchange=renderOrders; $('#orefresh').onclick=loadOrders;
+$('#olist').addEventListener('change',async e=>{
+  const s=e.target.closest('[data-st]'); if(!s) return;
+  try{await arpc('bb_admin_set_order_status',{p_ref:s.dataset.st,p_status:s.value}); toast('Order updated'); loadOrders(); loadABooks()}catch(err){toast(err.message);loadOrders()}
+});
+$('#olist').addEventListener('click',async e=>{
+  const d=e.target.closest('[data-del-o]'); if(!d) return;
+  if(!confirm(`Delete order ${d.dataset.delO} permanently? (Cancel it first if you want the stock returned.)`)) return;
+  try{await arpc('bb_admin_delete_order',{p_ref:d.dataset.delO}); toast('Order deleted'); loadOrders()}catch(err){toast(err.message)}
+});
+
+async function loadABooks(){try{ABOOKS=await arpc('bb_admin_books'); renderABooks()}catch(e){$('#btbody').innerHTML=`<tr><td colspan="7" class="err">${esc(e.message)}</td></tr>`}}
+function renderABooks(){
+  const q=$('#bq').value.trim().toLowerCase();
+  const list=ABOOKS.filter(b=>!q||(b.title+' '+b.author+' '+b.category).toLowerCase().includes(q));
+  $('#catList').innerHTML=[...new Set(['Fiction','Non-fiction','Faith & Christian','Business','Self-development','Children','Education','Biography','History','Poetry',...ABOOKS.map(b=>b.category)])].map(c=>`<option value="${esc(c)}">`).join('');
+  $('#btbody').innerHTML=list.length?list.map(b=>`<tr><td><div class="thumb">${coverHTML(b)}</div></td>
+    <td><b>${esc(b.title)}</b><div class="note">${esc(b.author)}</div></td><td class="hsm">${esc(b.category)}</td>
+    <td>${money(b.price)}</td><td style="${b.stock<1?'color:var(--err);font-weight:700':''}">${b.stock}</td>
+    <td class="hsm">${b.active?(b.featured?'Featured':'Visible'):'<span class="note">Hidden</span>'}</td>
+    <td style="white-space:nowrap"><button class="btn ghost sm" data-edit="${b.id}">Edit</button> <button class="btn danger sm" data-del-b="${b.id}">×</button></td></tr>`).join('')
+    :`<tr><td colspan="7" class="empty">No books yet — tap “+ Add book” to stock your shelves.</td></tr>`;
+}
+$('#bq').addEventListener('input',renderABooks);
+let editCover='';
+function setPv(){ $('#bkPv').innerHTML=coverHTML({cover:editCover,title:$('#bkForm').title.value||'Title',author:$('#bkForm').author.value}) }
+function openEdit(b){
+  const f=$('#bkForm'); f.reset(); $('#bkErr').textContent='';
+  b=b||{id:'',title:'',author:'',category:'',price:'',stock:1,isbn:'',description:'',featured:false,active:true,cover:''};
+  ['id','title','author','category','price','stock','isbn','description'].forEach(k=>f[k].value=b[k]??'');
+  f.featured.checked=!!b.featured; f.active.checked=b.active!==false; editCover=b.cover||'';
+  $('#bkTitle').textContent=b.id?'Edit book':'Add book'; setPv(); openLayer('#editModal');
+}
+$('#addBook').onclick=()=>openEdit();
+$('#bkForm').title.addEventListener('input',setPv); $('#bkForm').author.addEventListener('input',setPv);
+$('#bkNoCover').onclick=()=>{editCover='';setPv()};
+$('#bkFile').addEventListener('change',e=>{
+  const file=e.target.files[0]; if(!file) return;
+  const img=new Image(), url=URL.createObjectURL(file);
+  img.onload=()=>{const W=400,H=600,c=document.createElement('canvas');c.width=W;c.height=H;const x=c.getContext('2d');
+    const s=Math.max(W/img.width,H/img.height),w=img.width*s,h=img.height*s; x.fillStyle='#fff';x.fillRect(0,0,W,H);
+    x.drawImage(img,(W-w)/2,(H-h)/2,w,h); editCover=c.toDataURL('image/jpeg',0.8); URL.revokeObjectURL(url); setPv(); e.target.value=''};
+  img.onerror=()=>toast('Could not read that image'); img.src=url;
+});
+$('#btbody').addEventListener('click',async e=>{
+  const ed=e.target.closest('[data-edit]'); if(ed){openEdit(ABOOKS.find(b=>b.id===+ed.dataset.edit));return}
+  const d=e.target.closest('[data-del-b]'); if(!d) return;
+  const b=ABOOKS.find(x=>x.id===+d.dataset.delB);
+  if(!confirm(`Delete “${b.title}”? Tip: untick “Show in shop” instead to just hide it.`)) return;
+  try{await arpc('bb_admin_delete_book',{p_id:b.id}); toast('Book deleted'); loadABooks(); loadShop()}catch(err){toast(err.message)}
+});
+$('#bkForm').addEventListener('submit',async e=>{
+  e.preventDefault(); const f=e.target; $('#bkErr').textContent='';
+  if(!f.title.value.trim()){$('#bkErr').textContent='Title is required.';return}
+  const book={id:f.id.value,title:f.title.value.trim(),author:f.author.value.trim(),category:f.category.value.trim(),price:f.price.value||0,
+    stock:f.stock.value||0,isbn:f.isbn.value.trim(),description:f.description.value.trim(),featured:f.featured.checked,active:f.active.checked,cover:editCover};
+  const btn=f.querySelector('button.primary'); btn.disabled=true;
+  try{await arpc('bb_admin_save_book',{p_book:book}); closeLayers(); toast('Book saved'); loadABooks(); loadShop()}
+  catch(err){$('#bkErr').textContent=err.message} finally{btn.disabled=false}
+});
+
+function fillSettings(){const f=$('#stForm'); for(const el of f.elements) if(el.name) el.value=SETTINGS[el.name]??''}
+$('#stForm').addEventListener('submit',async e=>{
+  e.preventDefault(); const s={}; for(const el of e.target.elements) if(el.name) s[el.name]=el.value.trim();
+  try{await arpc('bb_admin_save_settings',{p_settings:s}); SETTINGS={...SETTINGS,...s}; applySettings(); toast('Settings saved')}catch(err){toast(err.message)}
+});
+$('#pwForm').addEventListener('submit',async e=>{
+  e.preventDefault(); const f=e.target;
+  try{await arpc('bb_admin_change_password',{p_old:f.old.value,p_new:f.nw.value}); f.reset(); toast('Password updated')}catch(err){toast(err.message)}
+});
+
+// ---------- routing ----------
+function route(){
+  const v=(location.hash.slice(1)||'shop').split('/')[0];
+  const view=['shop','checkout','done','track','admin'].includes(v)?v:'shop';
+  $$('.view').forEach(s=>s.classList.toggle('hidden',s.id!=='v-'+view));
+  $$('[data-nav]').forEach(a=>a.classList.toggle('on',a.dataset.nav===view));
+  closeLayers(); window.scrollTo(0,0);
+  if(view==='checkout') renderCheckout();
+  if(view==='done') renderDone();
+  if(view==='admin') showAdmin();
+}
+window.addEventListener('hashchange',route);
+saveCart();
+loadShop().then(route);
+route();
+</script>
+</body>
+</html>
